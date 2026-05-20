@@ -1,4 +1,5 @@
 import os
+import sys
 import shutil
 import re
 from  src.helpers import markdown_to_html_node, text_node_to_html_node, text_to_textnodes
@@ -47,7 +48,7 @@ def extract_title(markdown):
 """
 
 """
-def generate_page(from_path, template_path, dest_path):
+def generate_page(from_path, template_path, dest_path, basepath):
     print(f'Generating page from {from_path} to {dest_path} using {template_path}')
     
     # markdown file
@@ -68,6 +69,11 @@ def generate_page(from_path, template_path, dest_path):
     page_content = template_content.replace(r'{{ Title }}', title)
     page_content = page_content.replace(r'{{ Content }}', html)
     
+    # repalce any instances of href="/ with href={basepath}
+    # replace any instances of src="/ with src={basepath}
+    page_content = page_content.replace(r'href="/', f'href="{basepath}')
+    page_content = page_content.replace(r'src="/', f'src="{basepath}')
+    
     # write new full HTML page to a file at dest_path
     with open(dest_path, 'w') as file:
         file.write(page_content)
@@ -75,7 +81,7 @@ def generate_page(from_path, template_path, dest_path):
 """
 
 """    
-def generate_pages_recursively(dir_path_content, template_path, dest_dir_path):
+def generate_pages_recursively(dir_path_content, template_path, dest_dir_path, basepath):
     for entry in os.listdir(dir_path_content):
         from_path = os.path.join(dir_path_content, entry)
         dest_path = os.path.join(dest_dir_path, entry)
@@ -88,6 +94,7 @@ def generate_pages_recursively(dir_path_content, template_path, dest_dir_path):
                 from_path,
                 template_path,
                 dest_path,
+                basepath
             )
 
         # Generate HTML pages from markdown files
@@ -98,6 +105,7 @@ def generate_pages_recursively(dir_path_content, template_path, dest_dir_path):
                 from_path,
                 template_path,
                 dest_file,
+                basepath
             )
     
     
@@ -107,8 +115,9 @@ def generate_pages_recursively(dir_path_content, template_path, dest_dir_path):
 
 """ Main application driver """
 if __name__ == "__main__":
+    basepath = "/" if len(sys.argv) < 2 else sys.argv[1]
     copy_dir_recursive('static', 'public')
-    generate_pages_recursively('content', 'template.html', 'public')
+    generate_pages_recursively('content', 'template.html', 'docs', basepath)
 #    markdown= """
 #     - You can spend years studying the legendarium and still not understand its depths
 #     - It can be enjoyed by children and adults alike
