@@ -116,7 +116,7 @@ def generate_pages_recursively(dir_path_content, template_path, dest_dir_path, b
 """ Main application driver """
 if __name__ == "__main__":
     basepath = "/" if len(sys.argv) < 2 else sys.argv[1]
-    copy_dir_recursive('static', 'public')
+    copy_dir_recursive('static', 'docs')
     generate_pages_recursively('content', 'template.html', 'docs', basepath)
 #    markdown= """
 #     - You can spend years studying the legendarium and still not understand its depths
